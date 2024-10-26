@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:little_light_v01/core/constants/app_constants.dart';
 import 'package:little_light_v01/store/bottom_nav_store.dart';
 import 'feature/llc_screen.dart';
 
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Little Lights Charity',
+      title: LLCConstant.APP_NAME,
       debugShowCheckedModeBanner: false,
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),

@@ -3,19 +3,37 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:little_light_v01/core/constants/image_constants.dart';
 import 'package:little_light_v01/core/widgets/custom_progress_bar.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../../../../core/widgets/category_item.dart';
 import '../../../../core/widgets/llc_app_bar.dart';
 import '../../../../core/widgets/mobx/progress_store.dart';
+import '../../home/ux/home.dart';
 import '../mobx/campaign_store.dart';
 
-class CampaignDetailsScreen extends StatelessWidget {
+class CampaignDetailsScreen extends StatefulWidget {
   final String campaignTitle;
   final String organization;
   final String target;
   final String imagePath;
   final double raisedSoFar;
+
+  const CampaignDetailsScreen({
+    super.key,
+    required this.campaignTitle,
+    required this.organization,
+    required this.target,
+    required this.imagePath,
+    required this.raisedSoFar,
+  });
+  @override
+  State<CampaignDetailsScreen> createState() => _CampaignDetailsScreenState();
+}
+
+class _CampaignDetailsScreenState extends State<CampaignDetailsScreen> {
   final CampaignStore _campaignStore = CampaignStore();
+
   final ProgressStore _store = ProgressStore();
+
   final String _campaign =
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum. "
       "Praesent facilisis diam sit amet massa convallis, a condimentum nunc vehicula. "
@@ -24,18 +42,25 @@ class CampaignDetailsScreen extends StatelessWidget {
       "imperdiet fermentum et ac nunc. Sed nec tempor risus. Nam id mauris non sapien scelerisque "
       "mollis. Vivamus id sem id metus volutpat efficitur.";
 
-  CampaignDetailsScreen({
-    super.key,
-    required this.campaignTitle,
-    required this.organization,
-    required this.target,
-    required this.imagePath,
-    required this.raisedSoFar,
-  }) {
+  late Razorpay _razorpay;
+
+  @override
+  void initState() {
+    super.initState();
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
     final double targetValue =
-        double.parse(target.replaceAll('\$', '').replaceAll(',', ''));
-    double progress = raisedSoFar / targetValue;
+    double.parse(widget.target.replaceAll('\$', '').replaceAll(',', ''));
+    double progress = widget.raisedSoFar / targetValue;
     _store.updateProgress(progress);
+  }
+
+  @override
+  void dispose() {
+    _razorpay.clear();
+    super.dispose();
   }
 
   @override
@@ -69,7 +94,7 @@ class CampaignDetailsScreen extends StatelessWidget {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(20),
                         child: Image.asset(
-                          imagePath,
+                          widget.imagePath,
                           height: 200,
                           width: double.infinity,
                           fit: BoxFit.cover,
@@ -78,7 +103,7 @@ class CampaignDetailsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      campaignTitle,
+                      widget.campaignTitle,
                       style: GoogleFonts.girassol(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
@@ -98,7 +123,7 @@ class CampaignDetailsScreen extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              organization,
+                              widget.organization,
                               style: GoogleFonts.girassol(
                                 fontSize: 14,
                                 color: Colors.black45,
@@ -129,7 +154,7 @@ class CampaignDetailsScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'Target $target',
+                          'Target ${widget.target}',
                           style: GoogleFonts.girassol(
                             fontSize: 16,
                             color: Colors.black,
@@ -144,7 +169,7 @@ class CampaignDetailsScreen extends StatelessWidget {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: '\$${raisedSoFar.toStringAsFixed(2)} ',
+                                text: '\$${widget.raisedSoFar.toStringAsFixed(2)} ',
                                 style: GoogleFonts.girassol(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -154,7 +179,7 @@ class CampaignDetailsScreen extends StatelessWidget {
                               ),
                               TextSpan(
                                 text:
-                                    ' (${(_store.progressValue * 100).toStringAsFixed(0)}%)',
+                                ' (${(_store.progressValue * 100).toStringAsFixed(0)}%)',
                                 style: GoogleFonts.girassol(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,
@@ -165,7 +190,7 @@ class CampaignDetailsScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          target,
+                          widget.target,
                           style: GoogleFonts.girassol(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -240,49 +265,49 @@ class CampaignDetailsScreen extends StatelessWidget {
               ),
             ),
           ),
-          bottomNavigationBar: _donateCampaign()),
+          bottomNavigationBar: _donateCampaign(context)),
     );
   }
 
-  Widget _donateCampaign() => Padding(
-        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-        child: Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFF9bab7c),
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                spreadRadius: 1,
-                blurRadius: 5,
-                offset: const Offset(0, 2),
-              ),
-            ],
+  Widget _donateCampaign(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+    child: Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF9bab7c),
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, 2),
           ),
-          child: ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFb3d77d),
-              padding: const EdgeInsets.all(16),
-              side: const BorderSide(
-                color: Colors.black,
-                width: 2.0,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: Text(
-              'Donate To Campaign',
-              style: GoogleFonts.girassol(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-              ),
-            ),
+        ],
+      ),
+      child: ElevatedButton(
+        onPressed: () {},
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFFb3d77d),
+          padding: const EdgeInsets.all(16),
+          side: const BorderSide(
+            color: Colors.black,
+            width: 2.0,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
           ),
         ),
-      );
+        child: Text(
+          'Donate To Campaign',
+          style: GoogleFonts.girassol(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
+      ),
+    ),
+  );
 
   Widget _buildCampaignReadMore({required String desc}) {
     const int textLimit = 110;
@@ -313,4 +338,61 @@ class CampaignDetailsScreen extends StatelessWidget {
       ],
     );
   }
+
+  void _openCheckout() {
+    var options = {
+      'key': 'your_key_id',
+      'amount': 5000,
+      'name': widget.campaignTitle,
+      'description': 'Donation for ${widget.campaignTitle}',
+      'prefill': {
+        'contact': '07549452267',
+        'email': 'soumya01@email.com'
+      },
+    };
+    try {
+      _razorpay.open(options);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    _showDialog(
+        context, 'Payment Successful', 'Thank you for your donation!');
+    Navigator.push(
+        context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    _showDialog(context, 'Payment Failed',
+        'Your payment was unsuccessful. Please try again.');
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    // Handle external wallet if needed
+  }
+
+  void _showDialog(BuildContext context, String title, String content) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title,
+            style: GoogleFonts.girassol(
+                fontSize: 14, fontWeight: FontWeight.w600)),
+        content: Text(content,
+            style: GoogleFonts.girassol(
+                fontSize: 12, fontWeight: FontWeight.w400)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('OK',
+                style: GoogleFonts.girassol(
+                    fontSize: 14, fontWeight: FontWeight.w500)),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
