@@ -26,11 +26,6 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <!-- Razorpay Activity -->
-        <activity
-            android:name="com.razorpay.CheckoutActivity"
-            android:exported="false"
-            android:theme="@style/Theme.AppCompat.Translucent"/>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

@@ -3,11 +3,9 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:little_light_v01/core/constants/image_constants.dart';
 import 'package:little_light_v01/core/widgets/custom_progress_bar.dart';
-import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../../../../core/widgets/category_item.dart';
 import '../../../../core/widgets/llc_app_bar.dart';
 import '../../../../core/widgets/mobx/progress_store.dart';
-import '../../home/ux/home.dart';
 import '../mobx/campaign_store.dart';
 
 class CampaignDetailsScreen extends StatefulWidget {
@@ -42,15 +40,15 @@ class _CampaignDetailsScreenState extends State<CampaignDetailsScreen> {
       "imperdiet fermentum et ac nunc. Sed nec tempor risus. Nam id mauris non sapien scelerisque "
       "mollis. Vivamus id sem id metus volutpat efficitur.";
 
-  late Razorpay _razorpay;
+ // late Razorpay _razorpay;
 
   @override
   void initState() {
     super.initState();
-    _razorpay = Razorpay();
+    /*_razorpay = Razorpay();
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
-    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);*/
     final double targetValue =
     double.parse(widget.target.replaceAll('\$', '').replaceAll(',', ''));
     double progress = widget.raisedSoFar / targetValue;
@@ -59,7 +57,7 @@ class _CampaignDetailsScreenState extends State<CampaignDetailsScreen> {
 
   @override
   void dispose() {
-    _razorpay.clear();
+    //_razorpay.clear();
     super.dispose();
   }
 
@@ -339,7 +337,7 @@ class _CampaignDetailsScreenState extends State<CampaignDetailsScreen> {
     );
   }
 
-  void _openCheckout() {
+  /*void _openCheckout() {
     var options = {
       'key': 'your_key_id',
       'amount': 5000,
@@ -351,7 +349,7 @@ class _CampaignDetailsScreenState extends State<CampaignDetailsScreen> {
       },
     };
     try {
-      _razorpay.open(options);
+      //_razorpay.open(options);
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -371,9 +369,9 @@ class _CampaignDetailsScreenState extends State<CampaignDetailsScreen> {
 
   void _handleExternalWallet(ExternalWalletResponse response) {
     // Handle external wallet if needed
-  }
+  }*/
 
-  void _showDialog(BuildContext context, String title, String content) {
+  /*void _showDialog(BuildContext context, String title, String content) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -393,6 +391,6 @@ class _CampaignDetailsScreenState extends State<CampaignDetailsScreen> {
         ],
       ),
     );
-  }
+  }*/
 }
 
